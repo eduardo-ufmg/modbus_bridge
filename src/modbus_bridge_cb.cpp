@@ -1,5 +1,10 @@
 #include "modbus_bridge_cb.hpp"
 
+#include <ModbusTCP.h>
+#include <ModbusRTU.h>
+
+#include <SoftwareSerial.h>
+
 /**
  * @brief Unamed namespace so that the variables are only visible in this file,
  * 				where they are relevant.
@@ -13,16 +18,16 @@ namespace {
 	ModbusRTU* rtu;
 	ModbusTCP* tcp;
 
-	HardwareSerial* debug_serial;
+	HardwareSerial* dbg_serial;
 	SoftwareSerial* rtu_serial;
 }
 
-void setup_callbacks(ModbusRTU *ptr_rtu, ModbusTCP *ptr_tcp, SoftwareSerial *ptr_rtu_serial, HardwareSerial *ptr_debug_serial)
+void setup_callbacks(ModbusRTU *ptr_rtu, ModbusTCP *ptr_tcp, SoftwareSerial *ptr_rtu_serial, HardwareSerial *ptr_dbg_serial)
 {
-	rtu					 = ptr_rtu;
-	tcp					 = ptr_tcp;
-	rtu_serial	 = ptr_rtu_serial;
-	debug_serial = ptr_debug_serial;
+	rtu				 = ptr_rtu;
+	tcp				 = ptr_tcp;
+	rtu_serial = ptr_rtu_serial;
+	dbg_serial = ptr_dbg_serial;
 
 	transRunning = 0;
 	slaveRunning = 0;
@@ -42,7 +47,7 @@ void setup_callbacks(ModbusRTU *ptr_rtu, ModbusTCP *ptr_tcp, SoftwareSerial *ptr
 bool cbRtuTrans(Modbus::ResultCode event, uint16_t transactionId, void* data)
 {
   if (event != Modbus::EX_SUCCESS) {
-    debug_serial->printf("modbusRTU transaction result: %02X\r\n", event);
+    dbg_serial->printf("modbusRTU transaction result: %02X\r\n", event);
     transRunning = 0;
   }
   return true;
@@ -60,9 +65,9 @@ Modbus::ResultCode cbTcpRaw(uint8_t* data, uint8_t len, void* custom)
 {
   auto src = (Modbus::frame_arg_t*) custom;
   
-  debug_serial->print("received TCP request from ");
-  debug_serial->print(IPAddress(src->ipaddr));
-  debug_serial->printf("\t-> Fn: %02X, len: %d\r\n", data[0], len);
+  dbg_serial->print("received TCP request from ");
+  dbg_serial->print(IPAddress(src->ipaddr));
+  dbg_serial->printf("\t-> Fn: %02X, len: %d\r\n", data[0], len);
 
   if (transRunning) {
     tcp->setTransactionId(src->transactionId);
@@ -70,7 +75,7 @@ Modbus::ResultCode cbTcpRaw(uint8_t* data, uint8_t len, void* custom)
     return Modbus::EX_SLAVE_DEVICE_BUSY;
   }
 
-  debug_serial->printf("request RTU:\t%d\r\n", src->unitId);
+  dbg_serial->printf("request RTU:\t%d\r\n", src->unitId);
 
   rtu->rawRequest(src->unitId, data, len, cbRtuTrans);
   
@@ -106,16 +111,16 @@ Modbus::ResultCode cbRtuRaw(uint8_t* data, uint8_t len, void* custom)
 {
   auto src = (Modbus::frame_arg_t*)custom;
   
-  debug_serial->printf("received RTU response from %d\t-> Fn: %02X, len: %d\r\n", src->slaveId, data[0], len);
+  dbg_serial->printf("received RTU response from %d\t-> Fn: %02X, len: %d\r\n", src->slaveId, data[0], len);
 
   tcp->setTransactionId(transRunning);
   uint16_t succeed = tcp->rawResponce(srcIp, data, len, slaveRunning);
   if (!succeed) {
-    debug_serial->print("failed to");
+    dbg_serial->print("failed to");
   }
 
-  debug_serial->print("respond TCP:\t");
-  debug_serial->println(srcIp);
+  dbg_serial->print("respond TCP:\t");
+  dbg_serial->println(srcIp);
 
   transRunning = 0;
   slaveRunning = 0;

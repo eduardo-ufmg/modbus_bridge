@@ -6,7 +6,7 @@
 
 #include <SoftwareSerial.h>
 
-void setup_callbacks(ModbusRTU *rtu, ModbusTCP *tcp, SoftwareSerial *rtu_serial, HardwareSerial *debug_serial);
+void setup_callbacks(ModbusRTU *rtu, ModbusTCP *tcp, SoftwareSerial *rtu_serial, HardwareSerial *dbg_serial);
 
 bool cbRtuTrans(Modbus::ResultCode event, uint16_t transactionId, void* data);
 Modbus::ResultCode cbTcpRaw(uint8_t* data, uint8_t len, void* custom);
