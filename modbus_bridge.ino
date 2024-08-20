@@ -38,6 +38,8 @@ void setup()
   dbg_serial.begin(configs.dbg_baudrate(), configs.dbg_serial_config());
   rtu_serial.begin(configs.rtu_baudrate(), configs.rtu_serial_config());
 
+  dbg_serial.println("\r\n");
+
   setup_config_webpage(&server, &configs);
 
   bool use_wifi_manager = USE_WIFI_MANAGER;

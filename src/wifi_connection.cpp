@@ -16,8 +16,6 @@ namespace {
 bool wifi_manager_connect(HardwareSerial& dbg_serial)
 {
   dbg_serial.println("Connect to WiFi using WiFiManager.");
-  dbg_serial.printf("Access Point: %s, Password: %s, IP: %s\r\n",
-                        WIFI_MANAGER_AP_NAME, WIFI_MANAGER_AP_PASSWORD, "192.168.4.1"/*I*/);
   WiFiManager wifiManager;
   return wifiManager.autoConnect(WIFI_MANAGER_AP_NAME, WIFI_MANAGER_AP_PASSWORD);
 }
@@ -72,7 +70,3 @@ bool connect_to_wifi(HardwareSerial& dbg_serial, bool use_manager = false)
     return hardcode_connect(dbg_serial);
   }
 }
-
-/*
-I TODO: get IP address from WiFiManager, instead of hardcoding it.
-*/

@@ -10,9 +10,9 @@ namespace {
 		{"8 bits de dado, sem paridade, 	1 bit de parada",	 EspSoftwareSerial::Config::SWSERIAL_8N1},
 		{"8 bits de dado, paridade par, 	1 bit de parada",	 EspSoftwareSerial::Config::SWSERIAL_8E1},
 		{"8 bits de dado, paridade ímpar, 1 bit de parada",	 EspSoftwareSerial::Config::SWSERIAL_8O1},
-		{"8 bits de dado, sem paridade, 	2 bits de parada", EspSoftwareSerial::Config::SWSERIAL_8N2},
-		{"8 bits de dado, paridade par, 	2 bits de parada", EspSoftwareSerial::Config::SWSERIAL_8E2},
-		{"8 bits de dado, paridade ímpar, 2 bits de parada", EspSoftwareSerial::Config::SWSERIAL_8O2}
+		{"8 bits de dado, sem paridade, 	2 bit de parada", EspSoftwareSerial::Config::SWSERIAL_8N2},
+		{"8 bits de dado, paridade par, 	2 bit de parada", EspSoftwareSerial::Config::SWSERIAL_8E2},
+		{"8 bits de dado, paridade ímpar, 2 bit de parada", EspSoftwareSerial::Config::SWSERIAL_8O2}
 	};
 }
 
@@ -68,7 +68,7 @@ String config_page(Configs* configs)
 
 String config_page_header()
 {
-	return "<!DOCTYPE html><html><head><title>Modbus Bridge Configuration</title></head><body>";
+	return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Configurar</title></head><body>";
 }
 
 String config_page_footer()
@@ -79,21 +79,23 @@ String config_page_footer()
 String config_rtu_html(Configs* configs)
 {
 	String html;
-	html += "<h1>RTU Configuration</h1>";
+	html += "<h1>RTU</h1>";
 	html += "<form action=\"/configure\" method=\"post\">";
-	html += "<label for=\"rtu_baudrate\">Baudrate:</label>";
+	html += "<label for=\"rtu_baudrate\">Baudrate: </label>";
 	html += "<input type=\"number\" id=\"rtu_baudrate\" name=\"rtu_baudrate\" value=\"" + String(configs->rtu_baudrate()) + "\">";
-	html += "<label for=\"rtu_serial_config\">Serial Configuration:</label>";
+	html += "<br>";
+	html += "<label for=\"rtu_serial_config\">Parâmetros: </label>";
 	html += "<select id=\"rtu_serial_config\" name=\"rtu_serial_config\">";
-	for (const auto& [name, config] : serial_configs) {
+	for (const auto& [description, config] : serial_configs) {
 		html += "<option value=\"" + String(config) + "\"";
 		if (config == configs->rtu_serial_config()) {
 			html += " selected";
 		}
-		html += ">" + name + "</option>";
+		html += ">" + description + "</option>";
 	}
 	html += "</select>";
-	html += "<input type=\"submit\" value=\"Submit\">";
+	html += "<br>";
+	html += "<input type=\"submit\" value=\"Salvar\">";
 	html += "</form>";
 	return html;
 }
