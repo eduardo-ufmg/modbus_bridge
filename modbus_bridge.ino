@@ -40,7 +40,7 @@ void setup()
 
   dbg_serial.println("\r\n");
 
-  setup_config_webpage(&server, &configs);
+  setup_config_webpage(&server, &configs, &dbg_serial);
 
   bool use_wifi_manager = USE_WIFI_MANAGER;
   bool wifi_connected = connect_to_wifi(dbg_serial, use_wifi_manager);

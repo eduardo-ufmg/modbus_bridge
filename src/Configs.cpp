@@ -43,7 +43,6 @@ void Configs::set_rtu_baudrate(unsigned int baudrate)
 {
 	rtu_config.rtu_baudrate = baudrate;
 	preferences.putBytes("rtu_configs", &rtu_config, sizeof(RTUConfig));
-	rtu_config.update();
 }
 
 void Configs::set_dbg_baudrate(unsigned int baudrate)
@@ -56,7 +55,6 @@ void Configs::set_rtu_serial_config(EspSoftwareSerial::Config config)
 {
 	rtu_config.rtu_serial_config = config;
 	preferences.putBytes("rtu_configs", &rtu_config, sizeof(RTUConfig));
-	rtu_config.update();
 }
 
 void Configs::set_dbg_serial_config(SerialConfig config)
@@ -87,4 +85,9 @@ SerialConfig Configs::dbg_serial_config()
 {
 	preferences.getBytes("dbg_configs", &dbg_config, sizeof(DebugConfig));
 	return dbg_config.dbg_serial_config;
+}
+
+void Configs::update()
+{
+	rtu_config.update();
 }

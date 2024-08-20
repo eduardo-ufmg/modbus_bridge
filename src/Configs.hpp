@@ -48,6 +48,8 @@ public:
 	unsigned int dbg_baudrate();
 	EspSoftwareSerial::Config rtu_serial_config();
 	SerialConfig dbg_serial_config();
+
+	void update();
 };
 
 #endif
