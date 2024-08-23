@@ -6,6 +6,7 @@
 #include "Configs.hpp"
 
 namespace {
+	// use portuguese on webpage, even though debug is kept in english
 	const std::map<const EspSoftwareSerial::Config, const String> swserial_configs {
 		{SWSERIAL_8N1, "8 bits de dado, sem paridade, 	1 bit de parada"},
 		{SWSERIAL_8E1, "8 bits de dado, paridade par, 	1 bit de parada"},
@@ -15,6 +16,7 @@ namespace {
 		{SWSERIAL_8O2, "8 bits de dado, paridade ímpar, 2 bit de parada"}
 	};
 
+	// allow only standard baudrates
 	const unsigned long serial_baudrates[] = {4800, 9600, 19200, 38400, 115200};
 
 	String rtu_baudrate_param_name = "rtuBR";
@@ -30,6 +32,8 @@ String config_page_footer();
 String config_rtu_html(Configs* configs);
 
 void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial) {
+	// TODO: find a way to redirect from / to /configure without breaking the POST request
+
 	server->on("/configure", HTTP_GET, [configs](AsyncWebServerRequest* request) {
 		request->send(200, "text/html", config_page(configs));
 	});

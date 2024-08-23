@@ -5,6 +5,7 @@
 
 #include <Preferences.h>
 
+// define WEB_SERVER_H so WiFiManager and ESPAsyncWebServer don't conflict
 #define WEBSERVER_H
 #include <ESP8266WebServer.h>
 #include <ESPAsyncWebServer.h>
@@ -21,16 +22,17 @@ ModbusTCP tcp;
 
 SoftwareSerial sSerial(D1, D2);
 
-/**
- * @brief Name serial interfaces according to their purpose.
- */
+// name the serial ports according to their purpose
 SoftwareSerial& rtu_serial = sSerial;
 HardwareSerial& dbg_serial = Serial;
 
+// default values for when there is no saved configuration
 Configs configs(&rtu_serial, &dbg_serial, 115200, SWSERIAL_8N1, 115200, SERIAL_8N1);
 
 AsyncWebServer server(80);
 
+// utility function to check if a bit is set in a value
+// couldn't find a better place to put this yet
 bool is_bit_set(int val, int bit);
 
 void setup()
@@ -52,12 +54,20 @@ void setup()
 
   dbg_serial.println("\r\n");
 
+  // pass the server so it may be used for another pages in the future
+  // pass configs so the same object is used in other places
+  // pass dbg_serial for debugging purposes
+  // passed as pointer because i'm not sure about references in lambdas
   setup_config_webpage(&server, &configs, &dbg_serial);
 
+  // prefer to use the WiFiManager library to connect to WiFi,
+  // but hardcoded credentials are also an option
+  // pass dbg_serial for debugging purposes
   bool use_wifi_manager = USE_WIFI_MANAGER;
   bool wifi_connected = connect_to_wifi(dbg_serial, use_wifi_manager);
 
   if (wifi_connected) {
+    // WiFiManager has its own logging
     if (!use_wifi_manager) {
       dbg_serial.println();
       dbg_serial.print("WiFi connected! ");
@@ -69,7 +79,7 @@ void setup()
     ESP.deepSleep(0);
   }
 
-  // Pass pointers to the objects used by the callbacks.
+  // Pass pointers to the objects used by the callbacks
   setup_callbacks(&rtu, &tcp, &rtu_serial, &dbg_serial);
 
   server.begin();

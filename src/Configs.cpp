@@ -34,6 +34,8 @@ Configs::~Configs()
 
 int Configs::begin()
 {
+	// can't print before initializing the dbg_serial,
+	// so report the saved configs for debugging in main
 	int saved_config = 0;
 
 	preferences.begin(prefs_name, false);
