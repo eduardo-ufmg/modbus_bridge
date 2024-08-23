@@ -133,5 +133,7 @@ String format_data(uint8_t* data, uint8_t len)
 
 String get_function_description(int data_fn)
 {
-  return function_descriptions.find(data_fn) != function_descriptions.end() ? function_descriptions.at(data_fn) : "Unknown";
+  auto it = function_descriptions.find(data_fn);
+  
+  return it != function_descriptions.end() ? it->second : "Unknown";
 }

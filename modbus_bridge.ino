@@ -1,5 +1,12 @@
-#include <ModbusTCP.h>
+/*
+  Important: This bridge doesn'n support multiple
+              transactions at the same time.
+*/
+
+// if needed, RTU timeout can be changed by
+// #define MODBUSRTU_TIMEOUT <NEW_TIMEOUT>
 #include <ModbusRTU.h>
+#include <ModbusTCP.h>
 
 #include <SoftwareSerial.h>
 
