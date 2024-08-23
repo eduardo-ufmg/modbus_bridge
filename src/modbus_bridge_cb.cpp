@@ -1,5 +1,6 @@
 #include "modbus_bridge_cb.hpp"
 
+#include <map>
 #include <ModbusTCP.h>
 #include <ModbusRTU.h>
 
@@ -16,7 +17,22 @@ namespace {
 
 	HardwareSerial* dbg_serial;
 	SoftwareSerial* rtu_serial;
+
+  const std::map<const int, const String> function_descriptions {
+    {01, "Read Coils"},
+    {02, "Read Discrete Inputs"},
+    {03, "Read Holding Registers"},
+    {04, "Read Input Registers"},
+    {05, "Write Single Coil"},
+    {06, "Write Single Register"},
+    {15, "Write Multiple Coils"},
+    {16, "Write Multiple Registers"},
+    {23, "Read/Write Multiple Registers"}
+  };
 }
+
+String format_data(uint8_t* data, uint8_t len);
+String get_function_description(int data_fn);
 
 void setup_callbacks(ModbusRTU* ptr_rtu, ModbusTCP* ptr_tcp, SoftwareSerial* ptr_rtu_serial, HardwareSerial* ptr_dbg_serial)
 {
@@ -42,9 +58,14 @@ Modbus::ResultCode cbTcpRaw(uint8_t* data, uint8_t len, void* custom)
 {
   auto src = (Modbus::frame_arg_t*) custom;
   
-  dbg_serial->print("received TCP request from ");
-  dbg_serial->print(IPAddress(src->ipaddr));
-  dbg_serial->printf("| Fn: %d, len: %d\r\n", data[0], len);
+  String fn = get_function_description(data[0]);
+
+  dbg_serial->printf("received TCP request from %s| Fn: %s, len: %d\r\n",
+                                                                        IPAddress(src->ipaddr).toString().c_str(),
+                                                                        fn.c_str(),
+                                                                        len);
+
+  dbg_serial->printf("content: %s\r\n", format_data(data, len).c_str());
 
   if (transRunning) {
     tcp->setTransactionId(src->transactionId);
@@ -77,7 +98,14 @@ Modbus::ResultCode cbRtuRaw(uint8_t* data, uint8_t len, void* custom)
 {
   auto src = (Modbus::frame_arg_t*)custom;
   
-  dbg_serial->printf("received RTU response from %d| Fn: %d , len: %d\r\n", src->slaveId, data[0], len);
+  String fn = get_function_description(data[0]);
+
+  dbg_serial->printf("received RTU response from %d| Fn: %s, len: %d\r\n",
+                                                                          src->slaveId,
+                                                                          fn.c_str(),
+                                                                          len);
+
+  dbg_serial->printf("content: %s\r\n", format_data(data, len).c_str());
 
   tcp->setTransactionId(transRunning);
   uint16_t succeed = tcp->rawResponce(srcIp, data, len, slaveRunning);
@@ -85,10 +113,25 @@ Modbus::ResultCode cbRtuRaw(uint8_t* data, uint8_t len, void* custom)
     dbg_serial->print("failed to");
   }
 
-  dbg_serial->print("respond TCP to client ");
-  dbg_serial->println(srcIp);
+  dbg_serial->printf("respond TCP to client %s\r\n", srcIp.toString().c_str());
 
   transRunning = 0;
   slaveRunning = 0;
   return Modbus::EX_PASSTHROUGH;
+}
+
+String format_data(uint8_t* data, uint8_t len)
+{
+  String str = "";
+
+  for (uint8_t i = 0; i < len; i++) {
+    str += String(data[i], HEX) + " ";
+  }
+
+  return str;
+}
+
+String get_function_description(int data_fn)
+{
+  return function_descriptions.find(data_fn) != function_descriptions.end() ? function_descriptions.at(data_fn) : "Unknown";
 }

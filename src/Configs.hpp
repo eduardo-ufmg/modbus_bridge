@@ -11,6 +11,8 @@ enum saved_configs {
 };
 
 const std::map<const EspSoftwareSerial::Config, const String> sws_dbg_str {
+	// debug strings are kept in english because most libraries use english
+	// on their logging
 	{SWSERIAL_8N1, "SWSERIAL_8N1"},
 	{SWSERIAL_8E1, "SWSERIAL_8E1"},
 	{SWSERIAL_8O1, "SWSERIAL_8O1"},
