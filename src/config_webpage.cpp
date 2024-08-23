@@ -35,17 +35,13 @@ void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSeri
 	});
 
 	server->on("/configure", HTTP_POST, [configs, dbg_serial](AsyncWebServerRequest* request) {
-		dbg_serial->printf("New baudrate: %lu\r\n", request->getParam(rtu_baudrate_param_name, true)->value().toInt());
 		save_and_set_new_baudrate(configs, request);
-
-		dbg_serial->printf("New serial config: %s\r\n",
-			swserial_configs.at(static_cast<EspSoftwareSerial::Config>
-				(request->getParam(rtu_serial_config_param_name, true)->value().toInt())).c_str());
 		save_and_set_new_serial_config(configs, request);
 
 		configs->update();
+
 		dbg_serial->printf("Configs updated| RTU Baudrate: %d, RTU Serial Config: %s\r\n",
-			configs->rtu_baudrate(), swserial_configs.at(configs->rtu_serial_config()).c_str());
+			configs->rtu_baudrate(), sws_dbg_str.at(configs->rtu_serial_config()).c_str());
 
 		request->send(200, "text/html", config_page(configs));
 	});

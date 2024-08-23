@@ -31,12 +31,24 @@ Configs configs(&rtu_serial, &dbg_serial, 115200, SWSERIAL_8N1, 115200, SERIAL_8
 
 AsyncWebServer server(80);
 
+bool is_bit_set(int val, int bit);
+
 void setup()
 { 
-  configs.begin();
+  int saved_configs = configs.begin();
+
+  bool rtu_config_saved = is_bit_set(saved_configs, saved_configs::RTU_CONFIG);
+  bool dbg_config_saved = is_bit_set(saved_configs, saved_configs::DBG_CONFIG);
 
   dbg_serial.begin(configs.dbg_baudrate(), configs.dbg_serial_config());
   rtu_serial.begin(configs.rtu_baudrate(), configs.rtu_serial_config());
+
+  dbg_serial.println("\r\n");
+
+  dbg_serial.printf("RTU| had saved: %s, baudrate: %d, config: %s",
+                    rtu_config_saved ? "yes" : "no",
+                    configs.rtu_baudrate(),
+                    sws_dbg_str.at(configs.rtu_serial_config()).c_str());
 
   dbg_serial.println("\r\n");
 
@@ -75,4 +87,9 @@ void loop()
   rtu.task();
   tcp.task();
   yield();
+}
+
+bool is_bit_set(int val, int bit)
+{
+  return val & bit;
 }

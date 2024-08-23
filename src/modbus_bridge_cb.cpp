@@ -22,7 +22,7 @@ namespace {
 	SoftwareSerial* rtu_serial;
 }
 
-void setup_callbacks(ModbusRTU *ptr_rtu, ModbusTCP *ptr_tcp, SoftwareSerial *ptr_rtu_serial, HardwareSerial *ptr_dbg_serial)
+void setup_callbacks(ModbusRTU* ptr_rtu, ModbusTCP* ptr_tcp, SoftwareSerial* ptr_rtu_serial, HardwareSerial* ptr_dbg_serial)
 {
 	rtu				 = ptr_rtu;
 	tcp				 = ptr_tcp;
