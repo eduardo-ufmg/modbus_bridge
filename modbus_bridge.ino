@@ -1,5 +1,5 @@
 /*
-  Important: This bridge doesn'n support multiple
+  Important: This bridge doesn't support multiple
               transactions at the same time.
 */
 
@@ -27,7 +27,10 @@
 ModbusRTU rtu;
 ModbusTCP tcp;
 
-SoftwareSerial sSerial(D1, D2);
+const int RX = D1;
+const int TX = D2;
+
+SoftwareSerial sSerial(RX, TX);
 
 // name the serial ports according to their purpose
 SoftwareSerial& rtu_serial = sSerial;
@@ -69,8 +72,9 @@ void setup()
 
   // prefer to use the WiFiManager library to connect to WiFi,
   // but hardcoded credentials are also an option
-  // pass dbg_serial for debugging purposes
   bool use_wifi_manager = USE_WIFI_MANAGER;
+	
+	// pass dbg_serial for debugging purposes
   bool wifi_connected = connect_to_wifi(dbg_serial, use_wifi_manager);
 
   if (wifi_connected) {
