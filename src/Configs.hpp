@@ -10,17 +10,6 @@ enum saved_configs {
 	DBG_CONFIG = 1 << 1
 };
 
-const std::map<const EspSoftwareSerial::Config, const String> sws_dbg_str {
-	// debug strings are kept in english because most libraries use english
-	// on their logging
-	{SWSERIAL_8N1, "SWSERIAL_8N1"},
-	{SWSERIAL_8E1, "SWSERIAL_8E1"},
-	{SWSERIAL_8O1, "SWSERIAL_8O1"},
-	{SWSERIAL_8N2, "SWSERIAL_8N2"},
-	{SWSERIAL_8E2, "SWSERIAL_8E2"},
-	{SWSERIAL_8O2, "SWSERIAL_8O2"}
-};
-
 class RTUConfig {
 private:
 	SoftwareSerial *rtu_serial;

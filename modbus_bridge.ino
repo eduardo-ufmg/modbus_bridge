@@ -57,10 +57,9 @@ void setup()
 
   dbg_serial.println("\r\n");
 
-  dbg_serial.printf("RTU| had saved: %s, baudrate: %d, config: %s",
-                    rtu_config_saved ? "yes" : "no",
-                    configs.rtu_baudrate(),
-                    sws_dbg_str.at(configs.rtu_serial_config()).c_str());
+  dbg_serial.printf("There are%s saved RTU configurations.\
+											Check the /configure page to view and change them.\r\n",
+										rtu_config_saved ? "" : " no");
 
   dbg_serial.println("\r\n");
 

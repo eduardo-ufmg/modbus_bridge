@@ -6,14 +6,31 @@
 #include "Configs.hpp"
 
 namespace {
+	enum UniSerialConfigForPrinting {
+		S8N1, S8E1, S8O1, S8N2, S8E2, S8O2, ERROR
+	};
+
 	// use portuguese on webpage, even though debug is kept in english
-	const std::map<const EspSoftwareSerial::Config, const String> swserial_configs {
-		{SWSERIAL_8N1, "8 bits de dado, sem paridade, 	1 bit de parada"},
-		{SWSERIAL_8E1, "8 bits de dado, paridade par, 	1 bit de parada"},
-		{SWSERIAL_8O1, "8 bits de dado, paridade ímpar, 1 bit de parada"},
-		{SWSERIAL_8N2, "8 bits de dado, sem paridade, 	2 bit de parada"},
-		{SWSERIAL_8E2, "8 bits de dado, paridade par, 	2 bit de parada"},
-		{SWSERIAL_8O2, "8 bits de dado, paridade ímpar, 2 bit de parada"}
+	const std::map<const UniSerialConfigForPrinting, const String> webpage_config_str {
+		{S8N1, "8 bits de dado, sem paridade, 	1 bit de parada"},
+		{S8E1, "8 bits de dado, paridade par, 	1 bit de parada"},
+		{S8O1, "8 bits de dado, paridade ímpar, 1 bit de parada"},
+		{S8N2, "8 bits de dado, sem paridade, 	2 bit de parada"},
+		{S8E2, "8 bits de dado, paridade par, 	2 bit de parada"},
+		{S8O2, "8 bits de dado, paridade ímpar, 2 bit de parada"},
+		{ERROR, "Erro: a configuração não está mapeada"}
+	};
+
+	// debug strings are kept in english because most libraries use english
+	// on their logging
+	const std::map<const UniSerialConfigForPrinting, const String> serial_dbg_config_str {
+		{S8N1, "SWSERIAL_8N1"},
+		{S8E1, "SWSERIAL_8E1"},
+		{S8O1, "SWSERIAL_8O1"},
+		{S8N2, "SWSERIAL_8N2"},
+		{S8E2, "SWSERIAL_8E2"},
+		{S8O2, "SWSERIAL_8O2"},
+		{ERROR, "Error: config not mapped"}
 	};
 
 	// allow only standard baudrates
@@ -31,7 +48,11 @@ String config_page_header();
 String config_page_footer();
 String config_rtu_html(Configs* configs);
 
-void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial) {
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial::Config config);
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(SerialConfig config);
+
+template <typename ST>
+void setup_config_webpage(AsyncWebServer* server, Configs* configs, ST* dbg_serial) {
 	// TODO: find a way to redirect from / to /configure without breaking the POST request
 
 	server->on("/configure", HTTP_GET, [configs](AsyncWebServerRequest* request) {
@@ -45,12 +66,16 @@ void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSeri
 		configs->update();
 
 		dbg_serial->printf("Configs updated| RTU Baudrate: %d, RTU Serial Config: %s\r\n",
-			configs->rtu_baudrate(), sws_dbg_str.at(configs->rtu_serial_config()).c_str());
+			configs->rtu_baudrate(), serial_dbg_config_str.at(
+				get_uni_serial_config_for_printing(configs->rtu_serial_config())
+			).c_str());
 
 		request->send(200, "text/html", config_page(configs));
 	});
-
 }
+
+template void setup_config_webpage<HardwareSerial>(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial);
+template void setup_config_webpage<SoftwareSerial>(AsyncWebServer* server, Configs* configs, SoftwareSerial* dbg_serial);
 
 void save_and_set_new_baudrate(Configs* configs, AsyncWebServerRequest* request)
 {
@@ -109,17 +134,55 @@ String config_rtu_html(Configs* configs)
 
 	html += "<label for=\"rtuSC\">Parâmetros: </label>";
 	html += "<select id=\"rtuSC\" name=\"" + rtu_serial_config_param_name +"\">";
-	for (const auto& [config, description] : swserial_configs) {
+	for (const auto& [config, description] : webpage_config_str) {
 		html += "<option value=\"" + String(config) + "\"";
-		if (config == configs->rtu_serial_config()) {
+		if (config == get_uni_serial_config_for_printing(configs->rtu_serial_config())) {
 			html += " selected";
 		}
 		html += ">" + description + "</option>";
 	}
 	html += "</select>";
-	html += "<p>Parâmetro atual: " + swserial_configs.at(configs->rtu_serial_config()) + "</p>";
+	html += "<p>Parâmetro atual: " + webpage_config_str.at(
+		get_uni_serial_config_for_printing(configs->rtu_serial_config())
+	) + "</p>";
 
 	html += "<input type=\"submit\" value=\"Salvar\">";
 	html += "</form>";
 	return html;
+}
+
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial::Config config) {
+	switch (config) {
+	case SWSERIAL_8N1:
+		return S8N1;
+	case SWSERIAL_8E1:
+		return S8E1;
+	case SWSERIAL_8O1:
+		return S8O1;
+	case SWSERIAL_8N2:
+		return S8N2;
+	case SWSERIAL_8E2:
+		return S8E2;
+	case SWSERIAL_8O2:
+		return S8O2;
+	default: return ERROR;
+	}
+}
+
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(SerialConfig config) {
+	switch (config) {
+	case SERIAL_8N1:
+		return S8N1;
+	case SERIAL_8E1:
+		return S8E1;
+	case SERIAL_8O1:
+		return S8O1;
+	case SERIAL_8N2:
+		return S8N2;
+	case SERIAL_8E2:
+		return S8E2;
+	case SERIAL_8O2:
+		return S8O2;
+	default: return ERROR;
+	}
 }

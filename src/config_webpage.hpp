@@ -6,6 +6,7 @@
 #include <SoftwareSerial.h>
 #include "Configs.hpp"
 
-void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial);
+template <typename ST>
+void setup_config_webpage(AsyncWebServer* server, Configs* configs, ST* dbg_serial);
 
 #endif
