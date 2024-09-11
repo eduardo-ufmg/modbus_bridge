@@ -151,7 +151,8 @@ String config_rtu_html(Configs* configs)
 	return html;
 }
 
-UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial::Config config) {
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial::Config config)
+{
 	switch (config) {
 	case SWSERIAL_8N1:
 		return S8N1;
@@ -169,7 +170,8 @@ UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial:
 	}
 }
 
-UniSerialConfigForPrinting get_uni_serial_config_for_printing(SerialConfig config) {
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(SerialConfig config)
+{
 	switch (config) {
 	case SERIAL_8N1:
 		return S8N1;
