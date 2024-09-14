@@ -17,10 +17,11 @@
 #include <ESP8266WebServer.h>
 #include <ESPAsyncWebServer.h>
 
-#include "./src/Configs.hpp"
-#include "./src/config_webpage.hpp"
-#include "./src/wifi_connection.hpp"
-#include "./src/modbus_bridge_cb.hpp"
+#include "src/Configs/ConfigsSWRTU.hpp"
+#include "src/Configs/ConfigsHWRTU.hpp"
+#include "src/config_webpage.hpp"
+#include "src/wifi_connection.hpp"
+#include "src/modbus_bridge_cb.hpp"
 
 #define USE_WIFI_MANAGER true
 
@@ -37,20 +38,21 @@ SoftwareSerial& rtu_serial = sSerial;
 HardwareSerial& dbg_serial = Serial;
 
 // default values for when there is no saved configuration
-Configs configs(&rtu_serial, &dbg_serial, 115200, SWSERIAL_8N1, 115200, SERIAL_8N1);
+Configs<SoftwareSerial, HardwareSerial> configs(&rtu_serial, 115200, SWSERIAL_8N1,
+																								&dbg_serial, 115200, SERIAL_8N1);
 
 AsyncWebServer server(80);
 
 // utility function to check if a bit is set in a value
 // couldn't find a better place to put this yet
-bool is_bit_set(int val, int bit);
+bool is_bitmask_set(int val, int bit);
 
 void setup()
 { 
   int saved_configs = configs.begin();
 
-  bool rtu_config_saved = is_bit_set(saved_configs, saved_configs::RTU_CONFIG);
-  bool dbg_config_saved = is_bit_set(saved_configs, saved_configs::DBG_CONFIG);
+  bool rtu_config_saved = is_bitmask_set(saved_configs, saved_configs::RTU_CONFIG);
+  bool dbg_config_saved = is_bitmask_set(saved_configs, saved_configs::DBG_CONFIG);
 
   dbg_serial.begin(configs.dbg_baudrate(), configs.dbg_serial_config());
   rtu_serial.begin(configs.rtu_baudrate(), configs.rtu_serial_config());
@@ -67,7 +69,7 @@ void setup()
   // pass configs so the same object is used in other places
   // pass dbg_serial for debugging purposes
   // passed as pointer because i'm not sure about references in lambdas
-  setup_config_webpage(&server, &configs, &dbg_serial);
+  setup_config_webpage<HardwareSerial>(&server, &configs, &dbg_serial);
 
   // prefer to use the WiFiManager library to connect to WiFi,
   // but hardcoded credentials are also an option
@@ -109,7 +111,7 @@ void loop()
   yield();
 }
 
-bool is_bit_set(int val, int bit)
+bool is_bitmask_set(int val, int bit)
 {
   return val & bit;
 }

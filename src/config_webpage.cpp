@@ -3,7 +3,12 @@
 #include <map>
 #include <ESPAsyncWebServer.h>
 #include <SoftwareSerial.h>
-#include "Configs.hpp"
+
+#include "Configs/ConfigsTemplate.hpp"
+#include "Configs/ConfigsSWRTU.hpp"
+#include "Configs/ConfigsHWRTU.hpp"
+
+#include "OppositeSerial.hpp"
 
 namespace {
 	enum UniSerialConfigForPrinting {
@@ -40,19 +45,24 @@ namespace {
 	String rtu_serial_config_param_name = "rtuSC";
 }
 
-void save_and_set_new_baudrate(Configs* configs, AsyncWebServerRequest* request);
-void save_and_set_new_serial_config(Configs* configs, AsyncWebServerRequest* request);
+template <typename RTU, typename DBG>
+void save_and_set_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request);
+template <typename RTU, typename DBG>
+void save_and_set_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request);
 
-String config_page(Configs* configs);
+template <typename RTU, typename DBG>
+String config_page(Configs<RTU, DBG>* configs);
 String config_page_header();
 String config_page_footer();
-String config_rtu_html(Configs* configs);
+template <typename RTU, typename DBG>
+String config_rtu_html(Configs<RTU, DBG>* configs);
 
-UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial::Config config);
-UniSerialConfigForPrinting get_uni_serial_config_for_printing(SerialConfig config);
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(SWSConfig config);
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(HWSConfig config);
 
-template <typename ST>
-void setup_config_webpage(AsyncWebServer* server, Configs* configs, ST* dbg_serial) {
+template <typename SI>
+void setup_config_webpage(AsyncWebServer* server, Configs<typename OppositeSerial<SI>::Type, SI>* configs, SI* dbg_serial)
+{
 	// TODO: find a way to redirect from / to /configure without breaking the POST request
 
 	server->on("/configure", HTTP_GET, [configs](AsyncWebServerRequest* request) {
@@ -74,10 +84,14 @@ void setup_config_webpage(AsyncWebServer* server, Configs* configs, ST* dbg_seri
 	});
 }
 
-template void setup_config_webpage<HardwareSerial>(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial);
-template void setup_config_webpage<SoftwareSerial>(AsyncWebServer* server, Configs* configs, SoftwareSerial* dbg_serial);
+template void setup_config_webpage<HardwareSerial>
+	(AsyncWebServer* server, Configs<SoftwareSerial, HardwareSerial>* configs, HardwareSerial* dbg_serial);
 
-void save_and_set_new_baudrate(Configs* configs, AsyncWebServerRequest* request)
+template void setup_config_webpage<SoftwareSerial>
+	(AsyncWebServer* server, Configs<HardwareSerial, SoftwareSerial>* configs, SoftwareSerial* dbg_serial);
+
+template <typename RTU, typename DBG>
+void save_and_set_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
 	if (request->hasParam(rtu_baudrate_param_name, true)) {
 		unsigned int new_baudrate = request->getParam(rtu_baudrate_param_name, true)->value().toInt();
@@ -85,17 +99,41 @@ void save_and_set_new_baudrate(Configs* configs, AsyncWebServerRequest* request)
 	}
 }
 
-void save_and_set_new_serial_config(Configs* configs, AsyncWebServerRequest* request)
+template <typename RTU, typename DBG>
+void save_and_set_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
 	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		EspSoftwareSerial::Config new_config =
-			static_cast<EspSoftwareSerial::Config>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+		OtherConfig new_config =
+			static_cast<OtherConfig>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
 
 		configs->set_rtu_serial_config(new_config);
 	}
 }
 
-String config_page(Configs* configs)
+template <>
+void save_and_set_new_serial_config(Configs<SoftwareSerial, HardwareSerial>* configs, AsyncWebServerRequest* request)
+{
+	if (request->hasParam(rtu_serial_config_param_name, true)) {
+		SWSConfig new_config =
+			static_cast<SWSConfig>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+
+		configs->set_rtu_serial_config(new_config);
+	}
+}
+
+template <>
+void save_and_set_new_serial_config(Configs<HardwareSerial, SoftwareSerial>* configs, AsyncWebServerRequest* request)
+{
+	if (request->hasParam(rtu_serial_config_param_name, true)) {
+		HWSConfig new_config =
+			static_cast<HWSConfig>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+
+		configs->set_rtu_serial_config(new_config);
+	}
+}
+
+template <typename RTU, typename DBG>
+String config_page(Configs<RTU, DBG>* configs)
 {
 	String html;
 	html += config_page_header();
@@ -114,7 +152,8 @@ String config_page_footer()
 	return "</body></html>";
 }
 
-String config_rtu_html(Configs* configs)
+template <typename RTU, typename DBG>
+String config_rtu_html(Configs<RTU, DBG>* configs)
 {
 	String html;
 	html += "<h1>RTU</h1>";
@@ -151,7 +190,7 @@ String config_rtu_html(Configs* configs)
 	return html;
 }
 
-UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial::Config config)
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(SWSConfig config)
 {
 	switch (config) {
 	case SWSERIAL_8N1:
@@ -170,7 +209,7 @@ UniSerialConfigForPrinting get_uni_serial_config_for_printing(EspSoftwareSerial:
 	}
 }
 
-UniSerialConfigForPrinting get_uni_serial_config_for_printing(SerialConfig config)
+UniSerialConfigForPrinting get_uni_serial_config_for_printing(HWSConfig config)
 {
 	switch (config) {
 	case SERIAL_8N1:
