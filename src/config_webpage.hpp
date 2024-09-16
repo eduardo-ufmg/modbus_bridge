@@ -10,6 +10,14 @@
 
 #include "OppositeSerial.hpp"
 
+/*
+	TODO: change geters and setters names in Configs.hpp
+	so maybe the compiler don't think there are
+	multiple explicit template declarations
+	for the same function. maybe them we can
+	saparate implementations in a .cpp file
+*/
+
 template <typename SI>
 void setup_config_webpage(AsyncWebServer* server, Configs<typename OppositeSerial<SI>::Type, SI>* configs, SI* dbg_serial);
 

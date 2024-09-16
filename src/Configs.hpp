@@ -8,6 +8,14 @@
 
 #include "OppositeSerial.hpp"
 
+/*
+	TODO: change geters and setters names
+	so maybe the compiler don't think there are
+	multiple explicit template declarations
+	for the same function. maybe them we can
+	saparate implementations in a .cpp file
+*/
+
 typedef SerialConfig							HWSConfig;
 typedef EspSoftwareSerial::Config SWSConfig;
 
