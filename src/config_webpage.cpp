@@ -4,9 +4,7 @@
 #include <ESPAsyncWebServer.h>
 #include <SoftwareSerial.h>
 
-#include "Configs/ConfigsTemplate.hpp"
-#include "Configs/ConfigsSWRTU.hpp"
-#include "Configs/ConfigsHWRTU.hpp"
+#include "Configs.hpp"
 
 #include "OppositeSerial.hpp"
 
@@ -84,12 +82,6 @@ void setup_config_webpage(AsyncWebServer* server, Configs<typename OppositeSeria
 	});
 }
 
-template void setup_config_webpage<HardwareSerial>
-	(AsyncWebServer* server, Configs<SoftwareSerial, HardwareSerial>* configs, HardwareSerial* dbg_serial);
-
-template void setup_config_webpage<SoftwareSerial>
-	(AsyncWebServer* server, Configs<HardwareSerial, SoftwareSerial>* configs, SoftwareSerial* dbg_serial);
-
 template <typename RTU, typename DBG>
 void save_and_set_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
@@ -103,30 +95,8 @@ template <typename RTU, typename DBG>
 void save_and_set_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
 	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		OtherConfig new_config =
-			static_cast<OtherConfig>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
-
-		configs->set_rtu_serial_config(new_config);
-	}
-}
-
-template <>
-void save_and_set_new_serial_config(Configs<SoftwareSerial, HardwareSerial>* configs, AsyncWebServerRequest* request)
-{
-	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		SWSConfig new_config =
-			static_cast<SWSConfig>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
-
-		configs->set_rtu_serial_config(new_config);
-	}
-}
-
-template <>
-void save_and_set_new_serial_config(Configs<HardwareSerial, SoftwareSerial>* configs, AsyncWebServerRequest* request)
-{
-	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		HWSConfig new_config =
-			static_cast<HWSConfig>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+		SConfigSelector_t<RTU> new_config =
+			static_cast<SConfigSelector_t<RTU>>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
 
 		configs->set_rtu_serial_config(new_config);
 	}

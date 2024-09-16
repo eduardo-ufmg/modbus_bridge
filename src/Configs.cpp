@@ -1,9 +1,9 @@
-#include "ConfigsTemplate.hpp"
+#include "Configs.hpp"
 
-#include "ConfigsSWRTU.hpp"
-#include "ConfigsHWRTU.hpp"
+#include "OppositeSerial.hpp"
 
 #include <map>
+#include <type_traits>
 #include <Preferences.h>
 #include <SoftwareSerial.h>
 
@@ -16,8 +16,9 @@ void RTUConfig<SI>::update() {
 }
 
 template <typename RTU, typename DBG>
-Configs<RTU, DBG>(RTU *rtu_serial, unsigned int rtu_baudrate, OtherConfig rtu_serial_config,
-				DBG *dbg_serial, unsigned int dbg_baudrate, OtherConfig dbg_serial_config) {
+Configs<RTU, DBG>::Configs(
+									RTU *rtu_serial, unsigned int rtu_baudrate, SConfigSelector_t<RTU> rtu_serial_config,
+									DBG *dbg_serial, unsigned int dbg_baudrate, SConfigSelector_t<DBG> dbg_serial_config) {
 
 	rtu_config.serial = rtu_serial;
 	rtu_config.baudrate = rtu_baudrate;
@@ -46,17 +47,17 @@ int Configs<RTU, DBG>::begin() {
 	if (preferences.isKey(CONFIG_PREFERENCES_RTU_KEY)) {
 		saved_config |= saved_configs::RTU_CONFIG;
 	} else {
-		preferences.putBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig));
+		preferences.putBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig<RTU>));
 	}
 
 	if (preferences.isKey(CONFIG_PREFERENCES_DBG_KEY)) {
 		saved_config |= saved_configs::DBG_CONFIG;
 	} else {
-		preferences.putBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DebugConfig));
+		preferences.putBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DBGConfig<DBG>));
 	}
 
-	preferences.getBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig));
-	preferences.getBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DebugConfig));
+	preferences.getBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig<RTU>));
+	preferences.getBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DBGConfig<DBG>));
 
 	return saved_config;
 }
@@ -64,48 +65,48 @@ int Configs<RTU, DBG>::begin() {
 template <typename RTU, typename DBG>
 void Configs<RTU, DBG>::rtu_baudrate(unsigned int baudrate) {
 	rtu_config.baudrate = baudrate;
-	preferences.putBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig));
+	preferences.putBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig<RTU>));
 }
 
 template <typename RTU, typename DBG>
-void Configs<RTU, DBG>::rtu_serial_config(OtherConfig config) {
+void Configs<RTU, DBG>::rtu_serial_config(SConfigSelector_t<RTU> config) {
 	rtu_config.serial_config = config;
-	preferences.putBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig));
+	preferences.putBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig<RTU>));
 }
 
 template <typename RTU, typename DBG>
 void Configs<RTU, DBG>::dbg_baudrate(unsigned int baudrate) {
 	dbg_config.baudrate = baudrate;
-	preferences.putBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DebugConfig));
+	preferences.putBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DBGConfig<DBG>));
 }
 
 template <typename RTU, typename DBG>
-void Configs<RTU, DBG>::dbg_serial_config(OtherConfig config) {
+void Configs<RTU, DBG>::dbg_serial_config(SConfigSelector_t<DBG> config) {
 	dbg_config.dbg_serial_config = config;
-	preferences.putBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DebugConfig));
+	preferences.putBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DBGConfig<DBG>));
 }
 
 template <typename RTU, typename DBG>
 unsigned int Configs<RTU, DBG>::rtu_baudrate() {
-	preferences.getBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig));
+	preferences.getBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig<RTU>));
 	return rtu_config.baudrate;
 }
 
 template <typename RTU, typename DBG>
-OtherConfig Configs<RTU, DBG>::rtu_serial_config() {
-	preferences.getBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig));
+SConfigSelector_t<RTU> Configs<RTU, DBG>::rtu_serial_config() {
+	preferences.getBytes(CONFIG_PREFERENCES_RTU_KEY, &rtu_config, sizeof(RTUConfig<RTU>));
 	return rtu_config.serial_config;
 }
 
 template <typename RTU, typename DBG>
 unsigned int Configs<RTU, DBG>::dbg_baudrate() {
-	preferences.getBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DebugConfig));
+	preferences.getBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DBGConfig<DBG>));
 	return dbg_config.baudrate;
 }
 
 template <typename RTU, typename DBG>
-OtherConfig Configs<RTU, DBG>::dbg_serial_config() {
-	preferences.getBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DebugConfig));
+SConfigSelector_t<DBG> Configs<RTU, DBG>::dbg_serial_config() {
+	preferences.getBytes(CONFIG_PREFERENCES_DBG_KEY, &dbg_config, sizeof(DBGConfig<DBG>));
 	return dbg_config.dbg_serial_config;
 }
 

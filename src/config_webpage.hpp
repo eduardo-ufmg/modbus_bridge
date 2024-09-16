@@ -6,9 +6,7 @@
 #include <SoftwareSerial.h>
 #include <HardwareSerial.h>
 
-#include "Configs/ConfigsTemplate.hpp"
-#include "Configs/ConfigsSWRTU.hpp"
-#include "Configs/ConfigsHWRTU.hpp"
+#include "Configs.hpp"
 
 #include "OppositeSerial.hpp"
 

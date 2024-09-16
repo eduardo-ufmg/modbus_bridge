@@ -17,8 +17,7 @@
 #include <ESP8266WebServer.h>
 #include <ESPAsyncWebServer.h>
 
-#include "src/Configs/ConfigsSWRTU.hpp"
-#include "src/Configs/ConfigsHWRTU.hpp"
+#include "src/Configs.hpp"
 #include "src/config_webpage.hpp"
 #include "src/wifi_connection.hpp"
 #include "src/modbus_bridge_cb.hpp"
