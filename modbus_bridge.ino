@@ -75,7 +75,7 @@ void setup()
   bool use_wifi_manager = USE_WIFI_MANAGER;
 	
 	// pass dbg_serial for debugging purposes
-  bool wifi_connected = connect_to_wifi(dbg_serial, use_wifi_manager);
+  bool wifi_connected = connect_to_wifi<HardwareSerial>(dbg_serial, use_wifi_manager);
 
   if (wifi_connected) {
     // WiFiManager has its own logging
