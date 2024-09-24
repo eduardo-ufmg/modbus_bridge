@@ -20,7 +20,7 @@
 #include "src/Configs.hpp"
 #include "src/config_webpage.hpp"
 #include "src/wifi_connection.hpp"
-#include "src/modbus_bridge_cb.hpp"
+#include "src/ModbusBridgeCallBackManager.hpp"
 
 #define USE_WIFI_MANAGER true
 
@@ -35,6 +35,9 @@ SoftwareSerial sSerial(RX, TX);
 // name the serial ports according to their purpose
 SoftwareSerial& rtu_serial = sSerial;
 HardwareSerial& dbg_serial = Serial;
+
+// singleton instance to setup the callbacks
+ModbusBridgeCallBackManager<HardwareSerial>& callbackManager = ModbusBridgeCallBackManager<HardwareSerial>::getInstance();
 
 // default values for when there is no saved configuration
 Configs<SoftwareSerial, HardwareSerial> configs(&rtu_serial, 115200, SWSERIAL_8N1,
@@ -90,17 +93,19 @@ void setup()
     ESP.deepSleep(0);
   }
 
-  // Pass pointers to the objects used by the callbacks
-  setup_callbacks(&rtu, &tcp, &rtu_serial, &dbg_serial);
-
   server.begin();
 
   tcp.server();
-  tcp.onRaw(cbTcpRaw);
 
   rtu.begin(&rtu_serial);
   rtu.master();
-  rtu.onRaw(cbRtuRaw);
+
+  // Pass pointers to the objects used by the callbacks
+  callbackManager.setup_manager(&rtu, &tcp, &dbg_serial);
+
+	// set the callbacks for the RTU and TCP
+	callbackManager.set_rtu_raw_cb();
+	callbackManager.set_tcp_raw_cb();
 }
 
 void loop()
