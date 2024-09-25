@@ -47,7 +47,7 @@ private:
 	SConfigSelector_t<SI> serial_config;
 
 public:
-	void update();
+	void update(typename OppositeSerial<SI>::Type *dbg_serial);
 
 friend class Configs<SI, typename OppositeSerial<SI>::Type>;
 };
@@ -92,11 +92,38 @@ public:
 };
 
 template <typename SI>
-void RTUConfig<SI>::update() {
+void RTUConfig<SI>::update(typename OppositeSerial<SI>::Type *dbg_serial) {
+	#define DEBUG_RTU_CONFIG_UPDATE
+	#ifdef DEBUG_RTU_CONFIG_UPDATE
+		dbg_serial->println("flushing RTU serial...");
+	#endif
+
 	serial->flush();
+
+	#ifdef DEBUG_RTU_CONFIG_UPDATE
+		dbg_serial->println("RTU serial flushed");
+		dbg_serial->println("ending RTU serial...");
+	#endif
+	
 	serial->end();
+	
+	#ifdef DEBUG_RTU_CONFIG_UPDATE
+		dbg_serial->println("RTU serial ended");
+		dbg_serial->println("beginning RTU serial with new baudrate and configs...");
+	#endif
+
 	serial->begin(baudrate, serial_config);
+
+	#ifdef DEBUG_RTU_CONFIG_UPDATE
+		dbg_serial->println("RTU serial began");
+		dbg_serial->println("flushing RTU serial...");
+	#endif
+
 	serial->flush();
+
+	#ifdef DEBUG_RTU_CONFIG_UPDATE
+		dbg_serial->println("RTU serial flushed");
+	#endif
 }
 
 template <typename RTU, typename DBG>
@@ -196,7 +223,17 @@ SConfigSelector_t<DBG> Configs<RTU, DBG>::dbg_serial_config() {
 
 template <typename RTU, typename DBG>
 void Configs<RTU, DBG>::update() {
-	rtu_config.update();
+	#define DEBUG_CONFIGS_UPDATE
+	#ifdef DEBUG_CONFIGS_UPDATE
+		dbg_config.serial->println("updating RTU config...");
+	#endif
+
+	rtu_config.update(dbg_config.serial);
+
+	#ifdef DEBUG_CONFIGS_UPDATE
+		dbg_config.serial->println("RTU config updated");
+	#endif
+
 }
 
 #endif // CONFIGS_HPP
