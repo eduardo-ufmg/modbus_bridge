@@ -23,7 +23,7 @@
 #include "src/ModbusBridgeCallBackManager.hpp"
 
 #define USE_WIFI_MANAGER true
-#define SW_AS_RTU true
+#define SW_AS_RTU false
 
 ModbusRTU rtu;
 ModbusTCP tcp;

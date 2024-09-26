@@ -55,9 +55,9 @@ String rtu_baudrate_param_name = "rtuBR";
 String rtu_serial_config_param_name = "rtuSC";
 
 template <typename RTU, typename DBG>
-void save_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request, DBG* dbg_serial);
+void save_and_set_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request);
 template <typename RTU, typename DBG>
-void save_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request, DBG* dbg_serial);
+void save_and_set_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request);
 
 template <typename RTU, typename DBG>
 String config_page(Configs<RTU, DBG>* configs);
@@ -79,108 +79,37 @@ void setup_config_webpage(AsyncWebServer* server, Configs<typename OppositeSeria
 	});
 
 	server->on("/configure", HTTP_POST, [configs, dbg_serial](AsyncWebServerRequest* request) {
-		#define DEBUG_SERVER_ON_CONFIGURE_POST
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("POST request on /configure");
-		#endif
-
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("saving new baudrate...");
-		#endif
-
-		save_new_baudrate(configs, request, dbg_serial);
-
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("baudrate saved and set");
-			dbg_serial->println("saving new serial config...");
-		#endif
-
-		save_new_serial_config(configs, request, dbg_serial);
-
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("serial config saved and set");
-			dbg_serial->println("updating configs...");
-		#endif
+		save_and_set_new_baudrate(configs, request);
+		save_and_set_new_serial_config(configs, request);
 
 		configs->update();
-
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("configs updated");
-		#endif
 
 		dbg_serial->printf("Configs updated| RTU Baudrate: %d, RTU Serial Config: %s\r\n",
 			configs->rtu_baudrate(), serial_dbg_config_str.at(
 				get_uni_serial_config_for_printing(configs->rtu_serial_config())
 			).c_str());
 
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("sending response...");
-		#endif
-
 		request->send(200, "text/html", config_page(configs));
-
-		#ifdef DEBUG_SERVER_ON_CONFIGURE_POST
-			dbg_serial->println("response sent");
-		#endif
 	});
 }
 
 template <typename RTU, typename DBG>
-void save_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request, DBG* dbg_serial)
+void save_and_set_new_baudrate(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
-	#define DEBUG_SAVE_NEW_BAUDRATE
-	#ifdef DEBUG_SAVE_NEW_BAUDRATE
-		dbg_serial->println("access request for new baudrate");
-	#endif
-
 	if (request->hasParam(rtu_baudrate_param_name, true)) {
-		#ifdef DEBUG_SAVE_NEW_BAUDRATE
-			dbg_serial->println("request has new baudrate");
-			dbg_serial->println("extract baudrate from request...");
-		#endif
-
 		unsigned int new_baudrate = request->getParam(rtu_baudrate_param_name, true)->value().toInt();
-
-		#ifdef DEBUG_SAVE_NEW_BAUDRATE
-			dbg_serial->println("baudrate extracted");
-			dbg_serial->println("saving new baudrate...");
-		#endif	
-
 		configs->rtu_baudrate(new_baudrate);
-
-		#ifdef DEBUG_SAVE_NEW_BAUDRATE
-			dbg_serial->println("baudrate saved");
-		#endif
 	}
 }
 
 template <typename RTU, typename DBG>
-void save_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request, DBG* dbg_serial)
+void save_and_set_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
-	#define DEBUG_SAVE_NEW_SERIAL_CONFIG
-	#ifdef DEBUG_SAVE_NEW_SERIAL_CONFIG
-		dbg_serial->println("access request for new serial config");
-	#endif
-
 	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		#ifdef DEBUG_SAVE_NEW_SERIAL_CONFIG
-			dbg_serial->println("request has new serial config");
-			dbg_serial->println("extract serial config from request...");
-		#endif
-
 		SConfigSelector_t<RTU> new_config =
 			static_cast<SConfigSelector_t<RTU>>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
 
-		#ifdef DEBUG_SAVE_NEW_SERIAL_CONFIG
-			dbg_serial->println("serial config extracted");
-			dbg_serial->println("saving new serial config...");
-		#endif
-
 		configs->rtu_serial_config(new_config);
-
-		#ifdef DEBUG_SAVE_NEW_SERIAL_CONFIG
-			dbg_serial->println("serial config saved");
-		#endif
 	}
 }
 
