@@ -22,6 +22,8 @@
 #include "./src/wifi_connection.hpp"
 #include "./src/modbus_bridge_cb.hpp"
 
+#include "./src/SERIAL_TYPES.h"
+
 #define USE_WIFI_MANAGER true
 
 ModbusRTU rtu;
@@ -33,11 +35,17 @@ const int TX = D2;
 SoftwareSerial sSerial(RX, TX);
 
 // name the serial ports according to their purpose
-SoftwareSerial& rtu_serial = sSerial;
-HardwareSerial& dbg_serial = Serial;
+
+#if (SWS_AS_RTU_SERIAL)
+	RTU_SERIAL_TYPE& rtu_serial = sSerial;
+	DBG_SERIAL_TYPE& dbg_serial = Serial;
+#else
+	RTU_SERIAL_TYPE& rtu_serial = Serial;
+	DBG_SERIAL_TYPE& dbg_serial = sSerial;
+#endif
 
 // default values for when there is no saved configuration
-Configs configs(&rtu_serial, &dbg_serial, 115200, SWSERIAL_8N1, 115200, SERIAL_8N1);
+Configs configs(&rtu_serial, &dbg_serial, 115200, RTU_SERIAL_DFLT_CFG, 115200, DBG_SERIAL_DFLT_CFG);
 
 AsyncWebServer server(80);
 
@@ -46,7 +54,7 @@ AsyncWebServer server(80);
 bool is_bit_set(int val, int bit);
 
 void setup()
-{ 
+{
   int saved_configs = configs.begin();
 
   bool rtu_config_saved = is_bit_set(saved_configs, saved_configs::RTU_CONFIG);

@@ -6,6 +6,8 @@
 
 #include <SoftwareSerial.h>
 
+#include "SERIAL_TYPES.h"
+
 namespace {
 	IPAddress srcIp;
 
@@ -15,8 +17,8 @@ namespace {
 	ModbusRTU* rtu;
 	ModbusTCP* tcp;
 
-	HardwareSerial* dbg_serial;
-	SoftwareSerial* rtu_serial;
+	DBG_SERIAL_TYPE* dbg_serial;
+	RTU_SERIAL_TYPE* rtu_serial;
 
   const std::map<const int, const String> function_descriptions {
     {01, "Read Coils"},
@@ -34,7 +36,7 @@ namespace {
 String format_data(uint8_t* data, uint8_t len);
 String get_function_description(int data_fn);
 
-void setup_callbacks(ModbusRTU* ptr_rtu, ModbusTCP* ptr_tcp, SoftwareSerial* ptr_rtu_serial, HardwareSerial* ptr_dbg_serial)
+void setup_callbacks(ModbusRTU* ptr_rtu, ModbusTCP* ptr_tcp, RTU_SERIAL_TYPE* ptr_rtu_serial, DBG_SERIAL_TYPE* ptr_dbg_serial)
 {
 	rtu				 = ptr_rtu;
 	tcp				 = ptr_tcp;

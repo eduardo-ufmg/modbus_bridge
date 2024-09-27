@@ -5,15 +5,17 @@
 #include <SoftwareSerial.h>
 #include "Configs.hpp"
 
+#include "SERIAL_TYPES.h"
+
 namespace {
 	// use portuguese on webpage, even though debug is kept in english
-	const std::map<const EspSoftwareSerial::Config, const String> swserial_configs {
-		{SWSERIAL_8N1, "8 bits de dado, sem paridade, 	1 bit de parada"},
-		{SWSERIAL_8E1, "8 bits de dado, paridade par, 	1 bit de parada"},
-		{SWSERIAL_8O1, "8 bits de dado, paridade ímpar, 1 bit de parada"},
-		{SWSERIAL_8N2, "8 bits de dado, sem paridade, 	2 bit de parada"},
-		{SWSERIAL_8E2, "8 bits de dado, paridade par, 	2 bit de parada"},
-		{SWSERIAL_8O2, "8 bits de dado, paridade ímpar, 2 bit de parada"}
+	const std::map<const RTU_SERIAL_CFG_TYPE, const String> swserial_configs {
+		{S8N1, "8 bits de dado, sem paridade, 	1 bit de parada"},
+		{S8E1, "8 bits de dado, paridade par, 	1 bit de parada"},
+		{S8O1, "8 bits de dado, paridade ímpar, 1 bit de parada"},
+		{S8N2, "8 bits de dado, sem paridade, 	2 bit de parada"},
+		{S8E2, "8 bits de dado, paridade par, 	2 bit de parada"},
+		{S8O2, "8 bits de dado, paridade ímpar, 2 bit de parada"}
 	};
 
 	// allow only standard baudrates
@@ -31,7 +33,7 @@ String config_page_header();
 String config_page_footer();
 String config_rtu_html(Configs* configs);
 
-void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial) {
+void setup_config_webpage(AsyncWebServer* server, Configs* configs, DBG_SERIAL_TYPE* dbg_serial) {
 	// TODO: find a way to redirect from / to /configure without breaking the POST request
 
 	server->on("/configure", HTTP_GET, [configs](AsyncWebServerRequest* request) {
@@ -63,8 +65,8 @@ void save_and_set_new_baudrate(Configs* configs, AsyncWebServerRequest* request)
 void save_and_set_new_serial_config(Configs* configs, AsyncWebServerRequest* request)
 {
 	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		EspSoftwareSerial::Config new_config =
-			static_cast<EspSoftwareSerial::Config>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+		RTU_SERIAL_CFG_TYPE new_config =
+			static_cast<RTU_SERIAL_CFG_TYPE>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
 
 		configs->set_rtu_serial_config(new_config);
 	}

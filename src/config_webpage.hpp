@@ -6,6 +6,8 @@
 #include <SoftwareSerial.h>
 #include "Configs.hpp"
 
-void setup_config_webpage(AsyncWebServer* server, Configs* configs, HardwareSerial* dbg_serial);
+#include "SERIAL_TYPES.h"
+
+void setup_config_webpage(AsyncWebServer* server, Configs* configs, DBG_SERIAL_TYPE* dbg_serial);
 
 #endif

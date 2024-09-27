@@ -3,6 +3,8 @@
 #include <Preferences.h>
 #include <SoftwareSerial.h>
 
+#include "SERIAL_TYPES.h"
+
 namespace {
 	const char *prefs_name = "configs";
 	const char *rtu_key = "rtu_configs";
@@ -14,9 +16,9 @@ void RTUConfig::update() {
 	rtu_serial->begin(rtu_baudrate, rtu_serial_config);
 }
 
-Configs::Configs(SoftwareSerial* rtu_serial, HardwareSerial* dbg_serial,
-									unsigned int rtu_baudrate, EspSoftwareSerial::Config rtu_serial_config,
-									unsigned int dbg_baudrate, SerialConfig dbg_serial_config)
+Configs::Configs(RTU_SERIAL_TYPE* rtu_serial, DBG_SERIAL_TYPE* dbg_serial,
+									unsigned int rtu_baudrate, RTU_SERIAL_CFG_TYPE rtu_serial_config,
+									unsigned int dbg_baudrate, DBG_SERIAL_CFG_TYPE dbg_serial_config)
 {
 	rtu_config.rtu_serial 			 = rtu_serial;
 	rtu_config.rtu_baudrate			 = rtu_baudrate;
@@ -70,13 +72,13 @@ void Configs::set_dbg_baudrate(unsigned int baudrate)
 	preferences.putBytes(dbg_key, &dbg_config, sizeof(DebugConfig));
 }
 
-void Configs::set_rtu_serial_config(EspSoftwareSerial::Config config)
+void Configs::set_rtu_serial_config(RTU_SERIAL_CFG_TYPE config)
 {
 	rtu_config.rtu_serial_config = config;
 	preferences.putBytes(rtu_key, &rtu_config, sizeof(RTUConfig));
 }
 
-void Configs::set_dbg_serial_config(SerialConfig config)
+void Configs::set_dbg_serial_config(DBG_SERIAL_CFG_TYPE config)
 {
 	dbg_config.dbg_serial_config = config;
 	preferences.putBytes(dbg_key, &dbg_config, sizeof(DebugConfig));
@@ -92,12 +94,12 @@ unsigned int Configs::dbg_baudrate()
 	return dbg_config.dbg_baudrate;
 }
 
-EspSoftwareSerial::Config Configs::rtu_serial_config()
+RTU_SERIAL_CFG_TYPE Configs::rtu_serial_config()
 {
 	return rtu_config.rtu_serial_config;
 }
 
-SerialConfig Configs::dbg_serial_config()
+DBG_SERIAL_CFG_TYPE Configs::dbg_serial_config()
 {
 	return dbg_config.dbg_serial_config;
 }

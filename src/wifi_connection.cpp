@@ -3,18 +3,20 @@
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
 
+#include "SERIAL_TYPES.h"
+
 namespace {
  const unsigned wifi_connection_timeout_seconds = 10;
 }
 
-bool wifi_manager_connect(HardwareSerial& dbg_serial)
+bool wifi_manager_connect(DBG_SERIAL_TYPE& dbg_serial)
 {
   dbg_serial.println("Connect to WiFi using WiFiManager.");
   WiFiManager wifiManager;
   return wifiManager.autoConnect(WIFI_MANAGER_AP_NAME, WIFI_MANAGER_AP_PASSWORD);
 }
 
-bool hardcode_connect(HardwareSerial& dbg_serial)
+bool hardcode_connect(DBG_SERIAL_TYPE& dbg_serial)
 {
   dbg_serial.print("Connecting to ");
   dbg_serial.println(SSID);
@@ -39,7 +41,7 @@ bool hardcode_connect(HardwareSerial& dbg_serial)
   return false;
 }
 
-bool connect_to_wifi(HardwareSerial& dbg_serial, bool use_manager = false)
+bool connect_to_wifi(DBG_SERIAL_TYPE& dbg_serial, bool use_manager = false)
 {
   if (use_manager) {
     return wifi_manager_connect(dbg_serial);

@@ -6,8 +6,10 @@
 
 #include "credentials.hpp"
 
-bool wifi_manager_connect(HardwareSerial& dbg_serial);
-bool hardcode_connect(HardwareSerial& dbg_serial);
-bool connect_to_wifi(HardwareSerial& dbg_serial, bool use_manager);
+#include "SERIAL_TYPES.h"
+
+bool wifi_manager_connect(DBG_SERIAL_TYPE& dbg_serial);
+bool hardcode_connect(DBG_SERIAL_TYPE& dbg_serial);
+bool connect_to_wifi(DBG_SERIAL_TYPE& dbg_serial, bool use_manager);
 
 #endif
