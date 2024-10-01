@@ -78,13 +78,13 @@ void setup()
   bool rtu_config_saved = is_bitmask_set(saved_configs, saved_configs::RTU_CONFIG);
   bool dbg_config_saved = is_bitmask_set(saved_configs, saved_configs::DBG_CONFIG);
 
-  dbg_serial.begin(configs.dbg_baudrate(), configs.dbg_serial_config());
-  rtu_serial.begin(configs.rtu_baudrate(), configs.rtu_serial_config());
+  dbg_serial.begin(configs.get_dbg_baudrate(), configs.get_dbg_serial_config());
+  rtu_serial.begin(configs.get_rtu_baudrate(), configs.get_rtu_serial_config());
 
   dbg_serial.println("\r\n");
 
-  dbg_serial.printf("There are%s saved RTU configurations.\
-											Check the /configure page to view and change them.\r\n",
+  dbg_serial.printf("There are%s saved RTU configurations."
+										"	Check the /configure page to view and change them.\r\n",
 										rtu_config_saved ? "" : " no");
 
   dbg_serial.println("\r\n");
