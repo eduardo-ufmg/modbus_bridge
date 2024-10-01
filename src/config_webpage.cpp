@@ -8,6 +8,12 @@
 #include "Configs.hpp"
 #include "OppositeSerial.hpp"
 
+/*
+	SERIALCONFIG set is failing because the request param is a UniSerialConfigForPrinting.
+	in save_and_set_new_serial_config, we need to decode UniSerialConfigForPrinting according
+	to the selected serial type. don't seems hard.
+*/
+
 namespace {
 	enum UniSerialConfigForPrinting {
 		S8N1, S8E1, S8O1, S8N2, S8E2, S8O2, ERROR
