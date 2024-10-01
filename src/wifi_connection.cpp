@@ -12,7 +12,7 @@ template <typename SI>
 bool wifi_manager_connect(SI& dbg_serial)
 {
   dbg_serial.println("Connect to WiFi using WiFiManager.");
-  WiFiManager wifiManager;
+  WiFiManager wifiManager(dbg_serial);
   return wifiManager.autoConnect(WIFI_MANAGER_AP_NAME, WIFI_MANAGER_AP_PASSWORD);
 }
 
