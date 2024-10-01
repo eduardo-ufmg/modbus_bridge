@@ -3,8 +3,9 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiManager.h>
+#include <SoftwareSerial.h>
 
-#include "credentials.hpp"
+#include "credentials.h"
 
 #include "SERIAL_TYPES.h"
 

@@ -52,8 +52,8 @@ private:
 
 public:
 	Configs(RTU_SERIAL_TYPE* rtu_serial, DBG_SERIAL_TYPE* dbg_serial,
-					unsigned int rtu_baudrate = 9600, RTU_SERIAL_CFG_TYPE rtu_serial_config = SWSERIAL_8N1,
-					unsigned int dbg_baudrate = 115200, DBG_SERIAL_CFG_TYPE dbg_serial_config = SERIAL_8N1);
+					unsigned int rtu_baudrate = 9600, RTU_SERIAL_CFG_TYPE rtu_serial_config = RTU_SERIAL_DFLT_CFG,
+					unsigned int dbg_baudrate = 115200, DBG_SERIAL_CFG_TYPE dbg_serial_config = DBG_SERIAL_DFLT_CFG);
 	~Configs();
 
 	int begin();

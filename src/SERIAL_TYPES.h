@@ -1,7 +1,7 @@
 #ifndef SERIAL_TYPES_H
 #define SERIAL_TYPES_H
 
-#define SWS_AS_RTU_SERIAL true
+#define SWS_AS_RTU_SERIAL false
 
 #if (SWS_AS_RTU_SERIAL)
 	
