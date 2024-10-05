@@ -81,6 +81,8 @@ void setup()
   dbg_serial.begin(configs.get_dbg_baudrate(), configs.get_dbg_serial_config());
   rtu_serial.begin(configs.get_rtu_baudrate(), configs.get_rtu_serial_config());
 
+	dbg_serial.println("Settings can be checked and set at /configure");
+
   // pass the server so it may be used for another pages in the future
   // pass configs so the same object is used in other places
   // pass dbg_serial for debugging purposes
