@@ -47,6 +47,9 @@ private:
 	RTUConfig<RTU> rtu_config;
 	DBGConfig<DBG> dbg_config;
 
+	const char *preferences_rtu_key;
+	const char *preferences_dbg_key;
+
 public:
 	Configs(RTU *rtu_serial, unsigned int rtu_baudrate, SConfigSelector_t<RTU> rtu_serial_config,
 					DBG *dbg_serial, unsigned int dbg_baudrate, SConfigSelector_t<DBG> dbg_serial_config);
@@ -67,6 +70,9 @@ public:
 	SConfigSelector_t<DBG> get_dbg_serial_config();
 
 	void update();
+
+	const char *get_rtu_key();
+	const char *get_dbg_key();
 };
 
 #endif // CONFIGS_HPP

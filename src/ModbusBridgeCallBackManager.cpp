@@ -104,13 +104,15 @@ String ModbusBridgeCallBackManager<DBG>::get_function_description(int data_fn)
 }
 
 template<typename DBG>
-ModbusBridgeCallBackManager<DBG>& ModbusBridgeCallBackManager<DBG>::getInstance() {
+ModbusBridgeCallBackManager<DBG>& ModbusBridgeCallBackManager<DBG>::getInstance()
+{
 	static ModbusBridgeCallBackManager<DBG> instance;
 	return instance;
 }
 
 template<typename DBG>
-void ModbusBridgeCallBackManager<DBG>::setup_manager(ModbusRTU* ptr_rtu, ModbusTCP* ptr_tcp, DBG* ptr_dbg_serial) {
+void ModbusBridgeCallBackManager<DBG>::setup_manager(ModbusRTU* ptr_rtu, ModbusTCP* ptr_tcp, DBG* ptr_dbg_serial)
+{
 	rtu = ptr_rtu;
 	tcp = ptr_tcp;
 	dbg_serial = ptr_dbg_serial;
@@ -121,14 +123,16 @@ void ModbusBridgeCallBackManager<DBG>::setup_manager(ModbusRTU* ptr_rtu, ModbusT
 }
 
 template<typename DBG>
-bool ModbusBridgeCallBackManager<DBG>::set_rtu_raw_cb() {
+bool ModbusBridgeCallBackManager<DBG>::set_rtu_raw_cb()
+{
 	return rtu->onRaw([this](uint8_t* data, uint8_t len, void* custom) -> Modbus::ResultCode {
 		return cb_rtu_raw(data, len, custom);
 	});
 }
 
 template<typename DBG>
-bool ModbusBridgeCallBackManager<DBG>::set_tcp_raw_cb() {
+bool ModbusBridgeCallBackManager<DBG>::set_tcp_raw_cb()
+{
 	return tcp->onRaw([this](uint8_t* data, uint8_t len, void* custom) -> Modbus::ResultCode {
 		return cb_tcp_raw(data, len, custom);
 	});

@@ -23,7 +23,7 @@
 #include "src/ModbusBridgeCallBackManager.hpp"
 
 #define USE_WIFI_MANAGER true
-#define SW_AS_RTU false
+#define SW_AS_RTU        false
 
 ModbusRTU rtu;
 ModbusTCP tcp;
@@ -80,14 +80,6 @@ void setup()
 
   dbg_serial.begin(configs.get_dbg_baudrate(), configs.get_dbg_serial_config());
   rtu_serial.begin(configs.get_rtu_baudrate(), configs.get_rtu_serial_config());
-
-  dbg_serial.println("\r\n");
-
-  dbg_serial.printf("There are%s saved RTU configurations."
-										"	Check the /configure page to view and change them.\r\n",
-										rtu_config_saved ? "" : " no");
-
-  dbg_serial.println("\r\n");
 
   // pass the server so it may be used for another pages in the future
   // pass configs so the same object is used in other places
