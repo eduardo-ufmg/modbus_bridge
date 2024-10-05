@@ -7,6 +7,7 @@
 
 #include "Configs.hpp"
 #include "OppositeSerial.hpp"
+#include "SConfigSelector.hpp"
 
 /*
 	SERIALCONFIG set is failing because the request param is a UniSerialConfigForPrinting.
@@ -33,12 +34,12 @@ namespace {
 	// debug strings are kept in english because most libraries use english
 	// on their logging
 	const std::map<const UniSerialConfigForPrinting, const String> serial_dbg_config_str {
-		{S8N1, "SWSERIAL_8N1"},
-		{S8E1, "SWSERIAL_8E1"},
-		{S8O1, "SWSERIAL_8O1"},
-		{S8N2, "SWSERIAL_8N2"},
-		{S8E2, "SWSERIAL_8E2"},
-		{S8O2, "SWSERIAL_8O2"},
+		{S8N1, "S8N1"},
+		{S8E1, "S8E1"},
+		{S8O1, "S8O1"},
+		{S8N2, "S8N2"},
+		{S8E2, "S8E2"},
+		{S8O2, "S8O2"},
 		{ERROR, "Error: config not mapped"}
 	};
 
@@ -63,6 +64,9 @@ String config_rtu_html(Configs<RTU, DBG>* configs);
 
 UniSerialConfigForPrinting get_uni_serial_config_for_printing(SWSConfig config);
 UniSerialConfigForPrinting get_uni_serial_config_for_printing(HWSConfig config);
+
+template <typename SI>
+SConfigSelector_t<SI> GetSerialConfigWithTypeFromUniSerial(UniSerialConfigForPrinting config);
 
 template <typename SI>
 void setup_config_webpage(AsyncWebServer* server, Configs<typename OppositeSerial<SI>::Type, SI>* configs, SI* dbg_serial)
@@ -101,8 +105,10 @@ template <typename RTU, typename DBG>
 void save_and_set_new_serial_config(Configs<RTU, DBG>* configs, AsyncWebServerRequest* request)
 {
 	if (request->hasParam(rtu_serial_config_param_name, true)) {
-		SConfigSelector_t<RTU> new_config =
-			static_cast<SConfigSelector_t<RTU>>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+		UniSerialConfigForPrinting printable_config =
+			static_cast<UniSerialConfigForPrinting>(request->getParam(rtu_serial_config_param_name, true)->value().toInt());
+
+		SConfigSelector_t<RTU> new_config = GetSerialConfigWithTypeFromUniSerial<RTU>(printable_config);
 
 		configs->set_rtu_serial_config(new_config);
 	}
@@ -201,6 +207,44 @@ UniSerialConfigForPrinting get_uni_serial_config_for_printing(HWSConfig config)
 	case SERIAL_8O2:
 		return S8O2;
 	default: return ERROR;
+	}
+}
+
+template <typename SI>
+SConfigSelector_t<SI> GetSerialConfigWithTypeFromUniSerial(UniSerialConfigForPrinting config)
+{
+	if constexpr (std::is_same<SI, HardwareSerial>::value) {
+		switch (config) {
+		case S8N1:
+			return SERIAL_8N1;
+		case S8E1:
+			return SERIAL_8E1;
+		case S8O1:
+			return SERIAL_8O1;
+		case S8N2:
+			return SERIAL_8N2;
+		case S8E2:
+			return SERIAL_8E2;
+		case S8O2:
+			return SERIAL_8O2;
+		default: return SERIAL_8N1;
+		}
+	} else {
+		switch (config) {
+		case S8N1:
+			return SWSERIAL_8N1;
+		case S8E1:
+			return SWSERIAL_8E1;
+		case S8O1:
+			return SWSERIAL_8O1;
+		case S8N2:
+			return SWSERIAL_8N2;
+		case S8E2:
+			return SWSERIAL_8E2;
+		case S8O2:
+			return SWSERIAL_8O2;
+		default: return SWSERIAL_8N1;
+		}
 	}
 }
 

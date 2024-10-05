@@ -7,9 +7,7 @@
 #include <SoftwareSerial.h>
 
 #include "OppositeSerial.hpp"
-
-typedef SerialConfig							HWSConfig;
-typedef EspSoftwareSerial::Config SWSConfig;
+#include "SConfigSelector.hpp"
 
 template <typename RTU, typename DBG>
 class Configs;
@@ -18,14 +16,6 @@ enum saved_configs {
 	RTU_CONFIG = 1 << 0,
 	DBG_CONFIG = 1 << 1
 };
-
-template <typename SI>
-struct SConfigSelector {
-	using type = typename std::conditional<std::is_same<SI, HardwareSerial>::value, HWSConfig, SWSConfig>::type;
-};
-
-template <typename SI>
-using SConfigSelector_t = typename SConfigSelector<SI>::type;
 
 template <typename SI>
 class RTUConfig {

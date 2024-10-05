@@ -8,6 +8,7 @@
 
 #include "Configs.hpp"
 #include "OppositeSerial.hpp"
+#include "SConfigSelector.hpp"
 
 template <typename SI>
 void setup_config_webpage(AsyncWebServer* server, Configs<typename OppositeSerial<SI>::Type, SI>* configs, SI* dbg_serial);
