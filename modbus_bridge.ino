@@ -21,6 +21,7 @@
 #include "src/config_webpage.hpp"
 #include "src/wifi_connection.hpp"
 #include "src/ModbusBridgeCallBackManager.hpp"
+#include "src/rtu_serial_processor.hpp"
 
 #define USE_WIFI_MANAGER true
 #define SW_AS_RTU        false
@@ -67,23 +68,16 @@ Configs<RTUSerial, DBGSerial> configs(&rtu_serial, 115200, rtu_serial_config,
 
 AsyncWebServer server(80);
 
-// utility function to check if a bit is set in a value
-// couldn't find a better place to put this yet
-bool is_bitmask_set(int val, int bit);
-
 void setup()
 { 
-  int saved_configs = configs.begin();
-
-  bool rtu_config_saved = is_bitmask_set(saved_configs, saved_configs::RTU_CONFIG);
-  bool dbg_config_saved = is_bitmask_set(saved_configs, saved_configs::DBG_CONFIG);
+  configs.begin();
 
   dbg_serial.begin(configs.get_dbg_baudrate(), configs.get_dbg_serial_config());
   rtu_serial.begin(configs.get_rtu_baudrate(), configs.get_rtu_serial_config());
 
 	dbg_serial.println("Settings can be checked and set at /configure");
 
-  // pass the server so it may be used for another pages in the future
+  // pass the server so it may be used for other pages in the future
   // pass configs so the same object is used in other places
   // pass dbg_serial for debugging purposes
   // passed as pointer because i'm not sure about references in lambdas
@@ -113,7 +107,11 @@ void setup()
 
   tcp.server();
 
-  rtu.begin(&rtu_serial);
+	set_rtu_serial(&rtu_serial);
+	set_dbg_serial(&dbg_serial);
+
+
+  rtu.begin(expose_modbus_db());
   rtu.master();
 
   // Pass pointers to the objects used by the callbacks
@@ -128,10 +126,8 @@ void loop()
 {
   rtu.task();
   tcp.task();
-  yield();
-}
 
-bool is_bitmask_set(int val, int bit)
-{
-  return val & bit;
+	process_rtu_serial<RTUSerial, DBGSerial>();
+
+  yield();
 }
