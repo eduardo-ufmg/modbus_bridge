@@ -51,10 +51,10 @@ DBGSerial& dbg_serial = sSerial;
 // set the default configs according to the interface
 // types for RTU and DBG
 #if (SW_AS_RTU)
-SWSConfig rtu_serial_config = SWSERIAL_8N1;
+SWSConfig rtu_serial_config = SWSERIAL_8E1;
 HWSConfig dbg_serial_config = SERIAL_8N1;
 #else
-HWSConfig rtu_serial_config = SERIAL_8N1;
+HWSConfig rtu_serial_config = SERIAL_8E1;
 SWSConfig dbg_serial_config = SWSERIAL_8N1;
 #endif
 
@@ -62,28 +62,21 @@ SWSConfig dbg_serial_config = SWSERIAL_8N1;
 ModbusBridgeCallBackManager<DBGSerial>& callbackManager = ModbusBridgeCallBackManager<DBGSerial>::getInstance();
 
 // default values for when there is no saved configuration
-Configs<RTUSerial, DBGSerial> configs(&rtu_serial, 115200, rtu_serial_config,
+Configs<RTUSerial, DBGSerial> configs(&rtu_serial, 9600,   rtu_serial_config,
 																			&dbg_serial, 115200, dbg_serial_config);
 
 AsyncWebServer server(80);
 
-// utility function to check if a bit is set in a value
-// couldn't find a better place to put this yet
-bool is_bitmask_set(int val, int bit);
-
 void setup()
 { 
   int saved_configs = configs.begin();
-
-  bool rtu_config_saved = is_bitmask_set(saved_configs, saved_configs::RTU_CONFIG);
-  bool dbg_config_saved = is_bitmask_set(saved_configs, saved_configs::DBG_CONFIG);
 
   dbg_serial.begin(configs.get_dbg_baudrate(), configs.get_dbg_serial_config());
   rtu_serial.begin(configs.get_rtu_baudrate(), configs.get_rtu_serial_config());
 
 	dbg_serial.println("Settings can be checked and set at /configure");
 
-  // pass the server so it may be used for another pages in the future
+  // pass the server so it may be used for other pages in the future
   // pass configs so the same object is used in other places
   // pass dbg_serial for debugging purposes
   // passed as pointer because i'm not sure about references in lambdas
@@ -129,9 +122,4 @@ void loop()
   rtu.task();
   tcp.task();
   yield();
-}
-
-bool is_bitmask_set(int val, int bit)
-{
-  return val & bit;
 }
