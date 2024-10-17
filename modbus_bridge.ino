@@ -52,10 +52,10 @@ DBGSerial& dbg_serial = sSerial;
 // set the default configs according to the interface
 // types for RTU and DBG
 #if (SW_AS_RTU)
-SWSConfig rtu_serial_config = SWSERIAL_8N1;
+SWSConfig rtu_serial_config = SWSERIAL_8E1;
 HWSConfig dbg_serial_config = SERIAL_8N1;
 #else
-HWSConfig rtu_serial_config = SERIAL_8N1;
+HWSConfig rtu_serial_config = SERIAL_8E1;
 SWSConfig dbg_serial_config = SWSERIAL_8N1;
 #endif
 
@@ -63,7 +63,7 @@ SWSConfig dbg_serial_config = SWSERIAL_8N1;
 ModbusBridgeCallBackManager<DBGSerial>& callbackManager = ModbusBridgeCallBackManager<DBGSerial>::getInstance();
 
 // default values for when there is no saved configuration
-Configs<RTUSerial, DBGSerial> configs(&rtu_serial, 115200, rtu_serial_config,
+Configs<RTUSerial, DBGSerial> configs(&rtu_serial, 9600,   rtu_serial_config,
 																			&dbg_serial, 115200, dbg_serial_config);
 
 AsyncWebServer server(80);
