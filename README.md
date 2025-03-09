@@ -1,6 +1,6 @@
 # modbus_bridge
 
-Repositório encerrado porque minha participação no projeto parou de fazer sentido.
+Repositório encerrado.
 
 ## Como funciona
 Na ponte, são instanciados um *server* TCP e um *client* RTU. O servidor escuta a porta 502 e é acessível pela rede à qual a placa é conectada quando ligada. As credenciais de acesso à rede são gerenciadas pelo *wifi manager*. O *client* assume a porta serial definida pela *flag* **SW_AS_RT**. A serial complementar é usada para depuração. Inicializada, a ponte transmite todo pacote modbus recebido em seu *server* para o *client* e transmite a resposta do *client* para o *server*. A página web permite configurar e verificar paridade e taxa de bits da interface RTU.
@@ -29,15 +29,15 @@ Na ponte, são instanciados um *server* TCP e um *client* RTU. O servidor escuta
 
 ### Configuração dinâmica
 - **\<IP DA PONTE\>/configure** (`GET`): retorna a página de configuração. <br>
-&nbsp; &nbsp; &nbsp; &nbsp; Todas as mudanças são aplicadas imediatamente, sem necessidade de reinicialização.
+Todas as mudanças são aplicadas imediatamente, sem necessidade de reinicialização.
 
 ## TODO
 - [ ] Repassar mensagens de erro do *server* para o *client* <br>
-&nbsp; &nbsp; &nbsp; &nbsp; Atualmente, as mensagens de erro são consumidas pela ponte e transmitidas pela interface de depuração. Esse comportamento só é adequado para a mensagem de timeout. As demais podem ser exibidas na depuração, mas devem, também, ser repassadas ao *client*.
-- [ ] Extender a funcionalidades a multiplas transações concomitantes. 
-&nbsp; &nbsp; &nbsp; &nbsp; Não deve ser difícil. Não é possível, no estado atual, porque os identificadores são armazenados em variáveis únicas. Um map deve resolver.
-- [ ] Habilitar seleção entre RS232 e RS485.
-&nbsp; &nbsp; &nbsp; &nbsp; Atualmente, só é possível usar RS232. A seleção pode ser em tempo de compilação.
+Atualmente, as mensagens de erro são consumidas pela ponte e transmitidas pela interface de depuração. Esse comportamento só é adequado para a mensagem de timeout. As demais podem ser exibidas na depuração, mas devem, também, ser repassadas ao *client*.
+- [ ] Extender a funcionalidades a multiplas transações concomitantes. <br>
+Não deve ser difícil. Não é possível, no estado atual, porque os identificadores são armazenados em variáveis únicas. Um map deve resolver.
+- [ ] Habilitar seleção entre RS232 e RS485. <br>
+Atualmente, só é possível usar RS232. A seleção pode ser em tempo de compilação.
 
 ## Sugestões e comentários
 - Manter a interface de depuração na mesma serial em que o carregamento do código é feito é interessante porque permite manter todo acesso de usuário em uma única interface. Assim, fica simples de desacoplar a ponte quando em funcionamento. Entretanto, como o modbus é crítico em tempo, a interferência da interface em hardware sobre a serial em software prejudica as transmissões. Quando estiver funcionando bem, as mensagens de depuração podem ser reduzidas até que possam ser transmitidas pela interface de hardware sem interferir nas transmissões em software.
